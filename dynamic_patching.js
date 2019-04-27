@@ -151,7 +151,7 @@ function convert_format (array) {
  * @param {*} arry
  * @param {*} previous
  */
-function dynamic_planning (arry, previous) {
+function dynamic_planning (arry, previous, quote, base) {
 
   let minute = []
   let buffer = []
@@ -177,16 +177,16 @@ function dynamic_planning (arry, previous) {
       if (arry[i].time - start_from < 60) {
         buffer.push(arry[i])
         if (i >= arry.length - 1) {
-          minute.push(merge(convert_format(buffer), undefined, start_from))
+          minute.push(merge(convert_format(buffer), undefined, start_from, base, quote))
         }
         i++
       } else {
         if (buffer.length != 0) {
-          minute.push(merge(convert_format(buffer), undefined, start_from))
+          minute.push(merge(convert_format(buffer), undefined, start_from, base, quote))
           buffer = []
         } else {
           if (minute.length > 0) {
-            minute.push(merge([minute[minute.length - 1]], 0, start_from))
+            minute.push(merge([minute[minute.length - 1]], 0, start_from, base, quote))
           } else {
             buffer.push(previous)
           }
@@ -197,7 +197,7 @@ function dynamic_planning (arry, previous) {
 
     // Merge with the previous candle stick
     if (minute.length > 0) {
-      minute[0] = merge([previous, minute[0]])
+      minute[0] = merge([previous, minute[0]], undefined, undefined, base, quote)
     }
   }
   return minute
@@ -208,24 +208,26 @@ var minutes = []
 
 // Simulating the trade data from DB
 var trades = [
-  { time: 30, price: 0.5, qty: 0.5 },
-  { time: 59, price: 2, qty: 0.7 },
-  { time: 61, price: 36, qty: 1.3 },
-  { time: 65, price: 41, qty: 2.2 },
-  { time: 83, price: 43, qty: 3.7 },
-  { time: 83, price: 49, qty: 3.5 },
-  { time: 83, price: 50, qty: 3.6 },
-  { time: 111, price: 53, qty: 4 },
-  { time: 134, price: 64, qty: 5 },
-  { time: 170, price: 69, qty: 5 },
-  { time: 211, price: 78, qty: 6 },
-  { time: 431, price: 83, qty: 7 },
-  { time: 478, price: 89, qty: 7.8 },
-  { time: 511, price: 92, qty: 8 },
-  { time: 746, price: 100, qty: 9 }
+  { id: 1, time: 30, price: 0.5, qty: 0.5 },
+  { id: 2, time: 59, price: 2, qty: 0.7 },
+  { id: 3, time: 61, price: 36, qty: 1.3 },
+  { id: 4, time: 65, price: 41, qty: 2.2 },
+  { id: 5, time: 83, price: 43, qty: 3.7 },
+  { id: 6, time: 83, price: 49, qty: 3.5 },
+  { id: 7, time: 83, price: 50, qty: 3.6 },
+  { id: 8, time: 111, price: 53, qty: 4 },
+  { id: 9, time: 134, price: 64, qty: 5 },
+  { id: 10, time: 170, price: 69, qty: 5 },
+  { id: 11, time: 211, price: 78, qty: 6 },
+  { id: 12, time: 431, price: 83, qty: 7 },
+  { id: 13, time: 478, price: 89, qty: 7.8 },
+  { id: 14, time: 511, price: 92, qty: 8 },
+  { id: 15, time: 746, price: 100, qty: 9 }
 ]
 
 // Simulate the last data from histo_minute
+var quote = "USDT"
+var base = "BTC"
 var last_minute = {
   open: 5,
   close: 10,
@@ -241,7 +243,7 @@ console.log(JSON.stringify(last_minute))
 console.log('Start to process the dynamic planning')
 
 // Start to process the dynamic planning
-var result = dynamic_planning(trades, last_minute)
+var result = dynamic_planning(trades, last_minute, quote, base)
 last_minute = result[result.length - 1]
 console.log(result)
 
@@ -249,12 +251,12 @@ console.log(result)
 console.log('Simulate to patch the new trades')
 console.log('Set last minute ' + JSON.stringify(last_minute))
 trades = [
-  { time: 750, price: 120, qty: 10 },
-  { time: 751, price: 130, qty: 11 },
-  { time: 751, price: 130, qty: 11 },
-  { time: 900, price: 400, qty: 20 }
+  { id: 16, time: 750, price: 120, qty: 10 },
+  { id: 17, time: 751, price: 130, qty: 11 },
+  { id: 18, time: 751, price: 130, qty: 11 },
+  { id: 19, time: 900, price: 400, qty: 20 }
 ]
-result = dynamic_planning(trades, last_minute)
+result = dynamic_planning(trades, last_minute, quote, base)
 last_minute = result[result.length - 1]
 console.log(result)
 
@@ -262,9 +264,9 @@ console.log(result)
 console.log('Simulate to patch the new trades')
 console.log('Set last minute ' + JSON.stringify(last_minute))
 trades = [
-  { time: 950, price: 550, qty: 30 }
+  { id: 21, time: 950, price: 550, qty: 30 }
 ]
-result = dynamic_planning(trades, last_minute)
+result = dynamic_planning(trades, last_minute, quote, base)
 last_minute = result[result.length - 1]
 console.log(result)
 
@@ -272,9 +274,9 @@ console.log(result)
 console.log('Simulate to patch the new trades')
 console.log('Set last minute ' + JSON.stringify(last_minute))
 trades = [
-  { time: 951, price: 550, qty: 40 }, 
-  { time: 951, price: 550, qty: 40 }, 
-  { time: 1300, price: 600, qty: 50 }
+  { id: 22, time: 951, price: 550, qty: 40 }, 
+  { id: 23, time: 951, price: 550, qty: 40 }, 
+  { id: 24, time: 1300, price: 600, qty: 50 }
 ]
-result = dynamic_planning(trades, last_minute)
+result = dynamic_planning(trades, last_minute, quote, base)
 console.log(result)
