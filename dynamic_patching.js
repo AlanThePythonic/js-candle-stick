@@ -148,15 +148,17 @@ function convert_format (array) {
 
 /**
  * Slice the trade for generating the candle sticks
+ *
  * @param {*} arry
  * @param {*} previous
+ * @param {*} quote
+ * @param {*} base
  */
 function dynamic_planning (arry, previous, quote, base) {
-
   let minute = []
   let buffer = []
   let last_time = previous.time
-  
+
   // align to the timestamp mod 60
   if (last_time % 60 != 0) {
     let tmp = new Date(last_time * 1000)
@@ -196,9 +198,9 @@ function dynamic_planning (arry, previous, quote, base) {
     }
 
     // Merge with the previous candle stick
-    if (minute.length > 0) {
-      minute[0] = merge([previous, minute[0]], undefined, undefined, base, quote)
-    }
+    // if (minute.length > 0) {
+    //   minute[0] = merge([previous, minute[0]], undefined, undefined, base, quote)
+    // }
   }
   return minute
 }
@@ -226,8 +228,8 @@ var trades = [
 ]
 
 // Simulate the last data from histo_minute
-var quote = "USDT"
-var base = "BTC"
+var quote = 'USDT'
+var base = 'BTC'
 var last_minute = {
   open: 5,
   close: 10,
@@ -263,9 +265,7 @@ console.log(result)
 // Simulate to patch the new trades
 console.log('Simulate to patch the new trades')
 console.log('Set last minute ' + JSON.stringify(last_minute))
-trades = [
-  { id: 21, time: 950, price: 550, qty: 30 }
-]
+trades = [{ id: 21, time: 950, price: 550, qty: 30 }]
 result = dynamic_planning(trades, last_minute, quote, base)
 last_minute = result[result.length - 1]
 console.log(result)
@@ -274,8 +274,8 @@ console.log(result)
 console.log('Simulate to patch the new trades')
 console.log('Set last minute ' + JSON.stringify(last_minute))
 trades = [
-  { id: 22, time: 951, price: 550, qty: 40 }, 
-  { id: 23, time: 951, price: 550, qty: 40 }, 
+  { id: 22, time: 951, price: 550, qty: 40 },
+  { id: 23, time: 951, price: 550, qty: 40 },
   { id: 24, time: 1300, price: 600, qty: 50 }
 ]
 result = dynamic_planning(trades, last_minute, quote, base)
